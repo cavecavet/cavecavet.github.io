@@ -4,7 +4,6 @@ date: 2025-03-04
 ---
 Avui iniciem aquest blog per anar posant novetats.
 ---
-title: "Registre de l'Associació"
-date: 2025-04-17
----
+17-4-2025:
 Ens han autoritzat l'Associació!
+---
