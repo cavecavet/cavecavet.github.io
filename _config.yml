@@ -3,4 +3,6 @@ title: Associació Cave Cavet
 author: 
 description: Treballem per la protecció i difusió de la reserva marina del Cavet a Cambrils.
 show_downloads: false
+plugins:
+  - jekyll-feed
 google_analytics: G-387JH7XMYM
