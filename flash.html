@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anki Flashcards Standalone</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #fcfbf8;
+      color: #333;
+    }
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+    }
+    h2, h3 {
+      margin: 10px 0;
+    }
+    select, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      font-size: 1rem;
+    }
+    .card {
+      width: 300px;
+      height: 450px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .photo {
+      flex: 1;
+      background-size: cover;
+      background-position: center;
+    }
+    .author {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #9e8747;
+      padding: 4px;
+    }
+    .text {
+      padding: 8px;
+      text-align: center;
+      min-height: 60px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      flex: 1;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+    .btn-green { background: #4caf50; }
+    .btn-red { background: #f44336; }
+    .btn-gray { background: #ddd; color: black; }
+    .summary {
+      max-width: 600px;
+      margin: auto;
+      text-align: left;
+    }
+    ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const API_PATH = "https://api.minka-sdg.org/v1";
+
+async function getProjectObservations(projectId=184) {
+  const res = await fetch(`${API_PATH}/observations?project_id=${projectId}`);
+  const json = await res.json();
+  return json.results || [];
+}
+
+async function getAnkiDataFromObs(obs) {
+  const data = {};
+  const photos = obs.photos || [];
+  data.photos = photos.map((p) => p.url.replace("/square.", "/original."));
+  data.attributions = photos.map((p) => p.attribution);
+
+  const taxon = obs.taxon;
+  if (!taxon) return null;
+  const taxon_id = taxon.id;
+  data.scientific_name = taxon.name;
+
+  for (const lang of ["en", "es", "ca"]) {
+    const res = await fetch(`${API_PATH}/taxa?taxon_id=${taxon_id}&locale=${lang}`);
+    if (res.ok) {
+      const taxonJson = await res.json();
+      if (taxonJson.results.length > 0) {
+        data[`${lang}_name`] = taxonJson.results[0].preferred_common_name;
+      }
+    }
+  }
+  return data;
+}
+
+// --- UI handling ---
+const app = document.getElementById("app");
+
+function showStartScreen() {
+  app.innerHTML = `
+    <div class="screen">
+      <h2>Flashcards</h2>
+      <label>
+        Language:
+        <select id="lang">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="ca">Catalan</option>
+          <option value="sci">Scientific</option>
+        </select>
+      </label>
+      <label>
+        Number of cards:
+        <select id="count">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </label>
+      <button id="startBtn">Start</button>
+    </div>
+  `;
+  document.getElementById("startBtn").onclick = async () => {
+    const lang = document.getElementById("lang").value;
+    const count = parseInt(document.getElementById("count").value);
+    startReview(lang, count);
+  };
+}
+
+async function startReview(lang, count) {
+  app.innerHTML = `<div class="screen"><p>Loading cards...</p></div>`;
+  const obsList = await getProjectObservations(184);
+  const shuffled = obsList.sort(() => 0.5 - Math.random()).slice(0, count);
+  const cards = (await Promise.all(shuffled.map(getAnkiDataFromObs))).filter(Boolean);
+
+  let queue = [...cards];
+  let failed = [];
+  let current = 0;
+  let showAnswer = false;
+
+  function render() {
+    if (queue.length === 0) {
+      app.innerHTML = `
+        <div class="screen">
+          <h2>Review finished!</h2>
+          <div class="summary">
+            <h3>Failed species:</h3>
+            ${failed.length === 0 ? "<p>None 🎉</p>" : "<ul>" + failed.map(c=>`<li>${c.scientific_name}</li>`).join("") + "</ul>"}
+          </div>
+          <button onclick="location.reload()">Restart</button>
+        </div>
+      `;
+      return;
+    }
+    const card = queue[current];
+    let mainName = "";
+    if (lang==="en") mainName = card.en_name || card.scientific_name;
+    if (lang==="es") mainName = card.es_name || card.scientific_name;
+    if (lang==="ca") mainName = card.ca_name || card.scientific_name;
+    if (lang==="sci") mainName = card.scientific_name;
+
+    app.innerHTML = `
+      <div class="screen">
+        <h2>Review</h2>
+        <div class="card">
+          <div class="photo" style="background-image:url('${card.photos[0]}')"></div>
+          <div class="author">By ${card.attributions[0]||""}</div>
+          <div class="text">
+            ${showAnswer ? `
+              <p><b>${mainName}</b></p>
+              <p><i>${card.scientific_name}</i></p>
+            ` : `<p style="color:#999">Tap "Show Answer"</p>`}
+          </div>
+        </div>
+        <div class="buttons">
+          ${showAnswer
+            ? `
+              <button class="btn btn-green" id="knew">I knew</button>
+              <button class="btn btn-red" id="failed">I failed!</button>
+            `
+            : `<button class="btn btn-gray" id="show">Show Answer</button>`
+          }
+        </div>
+      </div>
+    `;
+    if (!showAnswer) {
+      document.getElementById("show").onclick = () => { showAnswer = true; render(); };
+    } else {
+      document.getElementById("knew").onclick = () => {
+        queue.splice(current,1);
+        if (current >= queue.length) current=0;
+        showAnswer = false;
+        render();
+      };
+      document.getElementById("failed").onclick = () => {
+        failed.push(card);
+        queue.push(card);
+        queue.splice(current,1);
+        if (current >= queue.length) current=0;
+        showAnswer = false;
+        render();
+      };
+    }
+  }
+
+  render();
+}
+
+showStartScreen();
+</script>
+</body>
+</html>
