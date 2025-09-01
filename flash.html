@@ -1,257 +1,238 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    body {background-color: #fbfaf6}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #262626; -webkit-text-stroke: #262626}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #262626; -webkit-text-stroke: #262626; min-height: 14.0px}
-    span.s1 {font-kerning: none}
-    span.Apple-tab-span {white-space:pre}
+  <meta charset="UTF-8">
+  <title>Flashcards Minka SDG</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #app {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    img.card-image {
+      max-width: 100%;
+      max-height: 70vh;
+      object-fit: contain; /* asegura que se vea completa */
+      margin-bottom: 8px;
+    }
+
+    /* 📱 Smartphone → portrait */
+    @media (max-width: 768px) {
+      img.card-image {
+        width: auto;
+        height: 70vh;  /* prioriza altura */
+      }
+    }
+
+    /* 💻 Desktop → landscape */
+    @media (min-width: 769px) {
+      img.card-image {
+        width: 100%;   /* prioriza ancho */
+        height: auto;
+      }
+    }
+
+    .attribution {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    button {
+      margin: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+      background: #007bff;
+      color: white;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .export-import {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;title&gt;Flashcards Minka SDG&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-family: sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>#app {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-width: 800px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin: 0 auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>img.card-image {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-height: 70vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>object-fit: contain; /* asegura que se vea completa */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* 📱 Smartphone → portrait */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>@media (max-width: 768px) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>img.card-image {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>width: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>height: 70vh;<span class="Apple-converted-space">  </span>/* prioriza altura */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* 💻 Desktop → landscape */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>@media (min-width: 769px) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>img.card-image {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>width: 100%; <span class="Apple-converted-space">  </span>/* prioriza ancho */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>height: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.attribution {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 0.9em;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #555;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: 1px solid #ccc;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>box-shadow: 0 2px 6px rgba(0,0,0,0.1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>button {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 10px 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #007bff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: white;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>button:hover {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #0056b3;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.export-import {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-top: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="app"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Flashcards Minka SDG&lt;/h1&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="screen"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const API_PATH = "https://api.minka-sdg.org/v1";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let deck = [];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let currentIndex = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let failedCards = [];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let language = "es";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let cardLimit = 25;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// Pantalla inicial</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function showStartScreen() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("screen").innerHTML = `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;label&gt;Idioma:<span class="Apple-converted-space"> </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;select id="lang"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="es"&gt;Español&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="ca"&gt;Català&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="en"&gt;English&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/label&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;br&gt;&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;label&gt;Cantidad de tarjetas:<span class="Apple-converted-space"> </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;select id="limit"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="25"&gt;25&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="50"&gt;50&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">              </span>&lt;option value="100"&gt;100&lt;/option&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/label&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;br&gt;&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;button onclick="startDeck()"&gt;Start&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="export-import"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;button onclick="importDeck()"&gt;Importar falladas&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;input type="file" id="importFile" style="display:none" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("lang").value = language;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("limit").value = cardLimit;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>async function startDeck() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>language = document.getElementById("lang").value;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>cardLimit = parseInt(document.getElementById("limit").value);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const response = await fetch(`${API_PATH}/observations?project_id=184`);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const data = await response.json();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const observations = data.results.slice(0, cardLimit);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>deck = await Promise.all(observations.map(loadCard));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>currentIndex = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>failedCards = [];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>showCard();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>async function loadCard(obs) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const photos = obs.photos.map(p =&gt; p.url.replace("/square.", "/original."));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const attributions = obs.photos.map(p =&gt; p.attribution);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const taxon = obs.taxon;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>// obtener nombre común en idioma</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>let commonName = "";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>try {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const res = await fetch(`${API_PATH}/taxa?taxon_id=${taxon.id}&amp;locale=${language}`);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const json = await res.json();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>commonName = json.results[0]?.preferred_common_name || "";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>} catch(e) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>commonName = "";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>return {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>id: obs.id,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>photos,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>attributions,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>scientific: taxon.name,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>common: commonName</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>};</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function showCard() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (deck.length === 0) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>showSummary();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>return;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const card = deck[currentIndex];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("screen").innerHTML = `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;img src="${card.photos[0]}" class="card-image" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="attribution"&gt;${card.attributions[0] || ""}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div&gt;&lt;strong&gt;Scientific:&lt;/strong&gt; ${card.scientific}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div id="answer" style="margin: 15px; font-size: 1.2em;"&gt;???&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;button onclick="showAnswer()"&gt;Show Answer&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function showAnswer() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const card = deck[currentIndex];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("answer").innerHTML = `&lt;strong&gt;${language.toUpperCase()}:&lt;/strong&gt; ${card.common || "N/A"}`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("screen").innerHTML += `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onclick="markFailed()"&gt;Ui, no!&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-tab-span">	</span>&lt;button onclick="markKnown()"&gt;Si, lo sabía&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function markKnown() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>deck.splice(currentIndex, 1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (currentIndex &gt;= deck.length) currentIndex = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>showCard();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function markFailed() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>failedCards.push(deck[currentIndex]);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>deck.push(deck[currentIndex]);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>deck.splice(currentIndex, 1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (currentIndex &gt;= deck.length) currentIndex = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>showCard();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function showSummary() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const list = failedCards.map(c =&gt; `&lt;li&gt;${c.scientific} (${c.common || "N/A"})&lt;/li&gt;`).join("");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("screen").innerHTML = `</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Resumen&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;p&gt;Fallaste ${failedCards.length} especies:&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;ul&gt;${list}&lt;/ul&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onclick="exportDeck()"&gt;Exportar falladas&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onclick="showStartScreen()"&gt;Volver al inicio&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function exportDeck() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const blob = new Blob([JSON.stringify(failedCards)], {type: "application/json"});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const url = URL.createObjectURL(blob);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const a = document.createElement("a");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>a.href = url;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>a.download = "failed_cards.json";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>a.click();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>URL.revokeObjectURL(url);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function importDeck() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const fileInput = document.getElementById("importFile");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>fileInput.click();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>fileInput.onchange = async () =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const file = fileInput.files[0];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const text = await file.text();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>failedCards = JSON.parse(text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>deck = [...failedCards];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>currentIndex = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>showCard();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>};</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// inicio</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>showStartScreen();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+  <div id="app">
+    <h1>Flashcards Minka SDG</h1>
+    <div id="screen"></div>
+  </div>
+
+  <script>
+    const API_PATH = "https://api.minka-sdg.org/v1";
+    let deck = [];
+    let currentIndex = 0;
+    let failedCards = [];
+    let language = "es";
+    let cardLimit = 25;
+
+    // Pantalla inicial
+    function showStartScreen() {
+      document.getElementById("screen").innerHTML = `
+        <div>
+          <label>Idioma: 
+            <select id="lang">
+              <option value="es">Español</option>
+              <option value="ca">Català</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <br><br>
+          <label>Cantidad de tarjetas: 
+            <select id="limit">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <br><br>
+          <button onclick="startDeck()">Start</button>
+          <div class="export-import">
+            <button onclick="importDeck()">Importar falladas</button>
+            <input type="file" id="importFile" style="display:none" />
+          </div>
+        </div>
+      `;
+
+      document.getElementById("lang").value = language;
+      document.getElementById("limit").value = cardLimit;
+    }
+
+    async function startDeck() {
+      language = document.getElementById("lang").value;
+      cardLimit = parseInt(document.getElementById("limit").value);
+
+      const response = await fetch(`${API_PATH}/observations?project_id=184`);
+      const data = await response.json();
+      const observations = data.results.slice(0, cardLimit);
+
+      deck = await Promise.all(observations.map(loadCard));
+      currentIndex = 0;
+      failedCards = [];
+      showCard();
+    }
+
+    async function loadCard(obs) {
+      const photos = obs.photos.map(p => p.url.replace("/square.", "/original."));
+      const attributions = obs.photos.map(p => p.attribution);
+      const taxon = obs.taxon;
+
+      // obtener nombre común en idioma
+      let commonName = "";
+      try {
+        const res = await fetch(`${API_PATH}/taxa?taxon_id=${taxon.id}&locale=${language}`);
+        const json = await res.json();
+        commonName = json.results[0]?.preferred_common_name || "";
+      } catch(e) {
+        commonName = "";
+      }
+
+      return {
+        id: obs.id,
+        photos,
+        attributions,
+        scientific: taxon.name,
+        common: commonName
+      };
+    }
+
+    function showCard() {
+      if (deck.length === 0) {
+        showSummary();
+        return;
+      }
+
+      const card = deck[currentIndex];
+      document.getElementById("screen").innerHTML = `
+        <div class="card">
+          <img src="${card.photos[0]}" class="card-image" />
+          <div class="attribution">${card.attributions[0] || ""}</div>
+          <div><strong>Scientific:</strong> ${card.scientific}</div>
+          <div id="answer" style="margin: 15px; font-size: 1.2em;">???</div>
+          <button onclick="showAnswer()">Show Answer</button>
+        </div>
+      `;
+    }
+
+    function showAnswer() {
+      const card = deck[currentIndex];
+      document.getElementById("answer").innerHTML = `<strong>${language.toUpperCase()}:</strong> ${card.common || "N/A"}`;
+      document.getElementById("screen").innerHTML += `
+        <button onclick="markKnown()">I knew</button>
+        <button onclick="markFailed()">I failed!</button>
+      `;
+    }
+
+    function markKnown() {
+      deck.splice(currentIndex, 1);
+      if (currentIndex >= deck.length) currentIndex = 0;
+      showCard();
+    }
+
+    function markFailed() {
+      failedCards.push(deck[currentIndex]);
+      deck.push(deck[currentIndex]);
+      deck.splice(currentIndex, 1);
+      if (currentIndex >= deck.length) currentIndex = 0;
+      showCard();
+    }
+
+    function showSummary() {
+      const list = failedCards.map(c => `<li>${c.scientific} (${c.common || "N/A"})</li>`).join("");
+      document.getElementById("screen").innerHTML = `
+        <h2>Resumen</h2>
+        <p>Fallaste ${failedCards.length} especies:</p>
+        <ul>${list}</ul>
+        <button onclick="exportDeck()">Exportar falladas</button>
+        <button onclick="showStartScreen()">Volver al inicio</button>
+      `;
+    }
+
+    function exportDeck() {
+      const blob = new Blob([JSON.stringify(failedCards)], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "failed_cards.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importDeck() {
+      const fileInput = document.getElementById("importFile");
+      fileInput.click();
+      fileInput.onchange = async () => {
+        const file = fileInput.files[0];
+        const text = await file.text();
+        failedCards = JSON.parse(text);
+        deck = [...failedCards];
+        currentIndex = 0;
+        showCard();
+      };
+    }
+
+    // inicio
+    showStartScreen();
+  </script>
 </body>
 </html>
