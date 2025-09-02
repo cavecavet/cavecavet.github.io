@@ -1,5 +1,6 @@
+<!-- ...existing code... -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Flashcards Minka SDG</title>
@@ -15,33 +16,48 @@
       margin: 0 auto;
     }
 
+    /* fixed container to avoid jumps between portrait/landscape */
+    .image-container {
+      width: 100%;
+      max-width: 900px;
+      height: 60vh; /* fixed height so cards don't jump */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0 auto 8px auto;
+    }
+
     img.card-image {
       max-width: 100%;
-      max-height: 70vh;
-      object-fit: contain; /* asegura que se vea completa */
-      margin-bottom: 8px;
+      max-height: 100%;
+      object-fit: contain;
+      transition: opacity .2s ease;
+      opacity: 0;
     }
 
-    /* 📱 Smartphone → portrait */
+    img.card-image.loaded {
+      opacity: 1;
+    }
+
+    /* small tweaks for orientation if needed (does not change container size) */
+    img.card-image.portrait {
+      padding: 8px 20px;
+    }
+    img.card-image.landscape {
+      padding: 8px 4px;
+    }
+
     @media (max-width: 768px) {
-      img.card-image {
-        width: auto;
-        height: 70vh;  /* prioriza altura */
-      }
-    }
-
-    /* 💻 Desktop → landscape */
-    @media (min-width: 769px) {
-      img.card-image {
-        width: 100%;   /* prioriza ancho */
-        height: auto;
-      }
+      .image-container { height: 55vh; }
     }
 
     .attribution {
       font-size: 0.9em;
       color: #555;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .card {
@@ -74,7 +90,7 @@
 </head>
 <body>
   <div id="app">
-    <h1>Flashcards Minka SDG</h1>
+    <h1 id="page-title">Flashcards Minka SDG</h1>
     <div id="screen"></div>
   </div>
 
@@ -85,12 +101,73 @@
     let failedCards = [];
     let language = "es";
     let cardLimit = 25;
+    let answered = false;
 
-    // Pantalla inicial
+    // Translations
+    const MSG = {
+      en: {
+        title: "Minka SDG Flashcards",
+        languageLabel: "Language:",
+        quantityLabel: "Number of cards:",
+        startButton: "Start",
+        importButton: "Import failed",
+        importFileAria: "Select JSON file with failed cards",
+        loading: "Loading {n} cards...",
+        showAnswer: "Show answer",
+        known: "I knew it",
+        failed: "I didn't!",
+        summaryTitle: "Summary",
+        summaryText: "You failed {n} species:",
+        exportButton: "Export failed",
+        backButton: "Back to start",
+        noImage: "No image"
+      },
+      es: {
+        title: "Flashcards Minka SDG",
+        languageLabel: "Idioma:",
+        quantityLabel: "Cantidad de tarjetas:",
+        startButton: "Iniciar",
+        importButton: "Importar falladas",
+        importFileAria: "Selecciona un archivo JSON con tarjetas falladas",
+        loading: "Cargando {n} tarjetas...",
+        showAnswer: "Muestra respuesta",
+        known: "Lo sabía",
+        failed: "¡No lo sabía!",
+        summaryTitle: "Resumen",
+        summaryText: "Fallaste {n} especies:",
+        exportButton: "Exportar falladas",
+        backButton: "Volver al inicio",
+        noImage: "Sin imagen"
+      },
+      ca: {
+        title: "Flashcards Minka SDG",
+        languageLabel: "Idioma:",
+        quantityLabel: "Nombre de targetes:",
+        startButton: "Iniciar",
+        importButton: "Importa fallades",
+        importFileAria: "Selecciona un fitxer JSON amb targetes fallades",
+        loading: "Carregant {n} targetes...",
+        showAnswer: "Mostra resposta",
+        known: "Ho sabia",
+        failed: "No ho sabia!",
+        summaryTitle: "Resum",
+        summaryText: "Has fallat {n} espècies:",
+        exportButton: "Exporta fallades",
+        backButton: "Tornen a l'inici",
+        noImage: "Sense imatge"
+      }
+    };
+
+    function t(key, vars = {}) {
+      const s = (MSG[language] && MSG[language][key]) || MSG['en'][key] || key;
+      return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+    }
+
     function showStartScreen() {
+      document.getElementById("page-title").textContent = t('title');
       document.getElementById("screen").innerHTML = `
         <div>
-          <label>Idioma: 
+          <label>${t('languageLabel')}
             <select id="lang">
               <option value="es">Español</option>
               <option value="ca">Català</option>
@@ -98,7 +175,7 @@
             </select>
           </label>
           <br><br>
-          <label>Cantidad de tarjetas: 
+          <label>${t('quantityLabel')}
             <select id="limit">
               <option value="25">25</option>
               <option value="50">50</option>
@@ -106,52 +183,84 @@
             </select>
           </label>
           <br><br>
-          <button onclick="startDeck()">Start</button>
+          <button id="start-btn">${t('startButton')}</button>
           <div class="export-import">
-            <button onclick="importDeck()">Importar falladas</button>
-            <input type="file" id="importFile" style="display:none" />
+            <button id="import-btn">${t('importButton')}</button>
+            <input type="file" id="importFile" style="display:none" aria-label="${t('importFileAria')}" />
           </div>
         </div>
       `;
-
       document.getElementById("lang").value = language;
       document.getElementById("limit").value = cardLimit;
+
+      document.getElementById("start-btn").onclick = startDeck;
+      document.getElementById("import-btn").onclick = importDeck;
     }
 
     async function startDeck() {
       language = document.getElementById("lang").value;
-      cardLimit = parseInt(document.getElementById("limit").value);
+      cardLimit = parseInt(document.getElementById("limit").value, 10);
 
-      const response = await fetch(`${API_PATH}/observations?project_id=184`);
-      const data = await response.json();
-      const observations = data.results.slice(0, cardLimit);
+      // show loading with chosen number
+      document.getElementById("page-title").textContent = t('title');
+      document.getElementById("screen").innerHTML = `<p>${t('loading', {n: cardLimit})}</p>`;
 
-      deck = await Promise.all(observations.map(loadCard));
+      // Collect all observations for the project (paginated)
+      const projectId = 184; // keep project id here; change if needed
+      let allObservations = [];
+      let page = 1;
+      try {
+        while (true) {
+          const res = await fetch(`${API_PATH}/observations?project_id=${projectId}&per_page=200&page=${page}`);
+          const json = await res.json();
+          if (!Array.isArray(json.results) || json.results.length === 0) break;
+          allObservations = allObservations.concat(json.results);
+          // if total results less than requested per_page, we can break early when pages exhausted
+          if (!json.next) break; // if API provides pagination link
+          page++;
+          // safety: prevent infinite loop
+          if (page > 200) break;
+        }
+      } catch (e) {
+        console.error("Error fetching observations:", e);
+      }
+
+      if (allObservations.length === 0) {
+        document.getElementById("screen").innerHTML = `<p>No observations found.</p><button onclick="showStartScreen()">${t('backButton')}</button>`;
+        return;
+      }
+
+      // shuffle and pick requested number
+      shuffleArray(allObservations);
+      const chosen = allObservations.slice(0, Math.min(cardLimit, allObservations.length));
+
+      // load full card objects
+      deck = await Promise.all(chosen.map(loadCard));
       currentIndex = 0;
       failedCards = [];
       showCard();
     }
 
     async function loadCard(obs) {
-      const photos = obs.photos.map(p => p.url.replace("/square.", "/original."));
-      const attributions = obs.photos.map(p => p.attribution);
-      const taxon = obs.taxon;
-
-      // obtener nombre común en idioma
+      // Ensure we have photos array
+      const photos = (obs.photos || []).map(p => (p.url || "").replace("/square.", "/original."));
+      const attributions = (obs.photos || []).map(p => p.attribution || "");
+      const taxon = obs.taxon || {};
       let commonName = "";
       try {
-        const res = await fetch(`${API_PATH}/taxa?taxon_id=${taxon.id}&locale=${language}`);
-        const json = await res.json();
-        commonName = json.results[0]?.preferred_common_name || "";
-      } catch(e) {
+        if (taxon.id) {
+          const res = await fetch(`${API_PATH}/taxa?taxon_id=${taxon.id}&locale=${language}`);
+          const json = await res.json();
+          commonName = json.results?.[0]?.preferred_common_name || "";
+        }
+      } catch (e) {
         commonName = "";
       }
-
       return {
         id: obs.id,
-        photos,
+        photos: photos.length ? photos : [null],
         attributions,
-        scientific: taxon.name,
+        scientific: taxon.name || "N/A",
         common: commonName
       };
     }
@@ -161,26 +270,58 @@
         showSummary();
         return;
       }
-
+      answered = false;
       const card = deck[currentIndex];
+      const imgSrc = card.photos[0];
+      const attribution = card.attributions[0] || "";
       document.getElementById("screen").innerHTML = `
         <div class="card">
-          <img src="${card.photos[0]}" class="card-image" />
-          <div class="attribution">${card.attributions[0] || ""}</div>
-          <div><strong>Scientific:</strong> ${card.scientific}</div>
+          <div class="image-container">
+            ${imgSrc ? `<img id="card-img" src="${imgSrc}" class="card-image" alt="card image"/>` : `<div style="color:#777">${t('noImage')}</div>`}
+          </div>
+          <div class="attribution">${escapeHtml(attribution)}</div>
           <div id="answer" style="margin: 15px; font-size: 1.2em;">???</div>
-          <button onclick="showAnswer()">Show Answer</button>
+          <button id="show-answer-btn">${t('showAnswer')}</button>
         </div>
       `;
+
+      const img = document.getElementById('card-img');
+      if (img) {
+        img.onload = () => {
+          // determine orientation and add class
+          try {
+            const isPortrait = img.naturalHeight > img.naturalWidth;
+            img.classList.add(isPortrait ? 'portrait' : 'landscape', 'loaded');
+          } catch (e) {
+            img.classList.add('loaded');
+          }
+        };
+        img.onerror = () => {
+          img.remove();
+          const container = document.querySelector('.image-container');
+          if (container) container.innerHTML = `<div style="color:#777">${t('noImage')}</div>`;
+        };
+      }
+
+      document.getElementById('show-answer-btn').onclick = showAnswer;
     }
 
     function showAnswer() {
       const card = deck[currentIndex];
-      document.getElementById("answer").innerHTML = `<strong>${language.toUpperCase()}:</strong> ${card.common || "N/A"}`;
-      document.getElementById("screen").innerHTML += `
-        <button onclick="markKnown()">I knew</button>
-        <button onclick="markFailed()">I failed!</button>
+      document.getElementById("answer").innerHTML = `
+        🌱 <strong>${language.toUpperCase()}:</strong> ${escapeHtml(card.common || "N/A")}<br>
+        🌿 <strong>Scientific:</strong> ${escapeHtml(card.scientific)}
       `;
+      if (!answered) {
+        const screen = document.getElementById("screen");
+        screen.innerHTML += `
+          <button id="known-btn">${t('known')}</button>
+          <button id="failed-btn">${t('failed')}</button>
+        `;
+        document.getElementById('known-btn').onclick = markKnown;
+        document.getElementById('failed-btn').onclick = markFailed;
+        answered = true;
+      }
     }
 
     function markKnown() {
@@ -190,6 +331,7 @@
     }
 
     function markFailed() {
+      // push failed card to failed list and move it to end of deck
       failedCards.push(deck[currentIndex]);
       deck.push(deck[currentIndex]);
       deck.splice(currentIndex, 1);
@@ -198,18 +340,20 @@
     }
 
     function showSummary() {
-      const list = failedCards.map(c => `<li>${c.scientific} (${c.common || "N/A"})</li>`).join("");
+      const list = failedCards.map(c => `<li>${escapeHtml(c.scientific)} (${escapeHtml(c.common || "N/A")})</li>`).join("");
       document.getElementById("screen").innerHTML = `
-        <h2>Resumen</h2>
-        <p>Fallaste ${failedCards.length} especies:</p>
+        <h2>${t('summaryTitle')}</h2>
+        <p>${t('summaryText', {n: failedCards.length})}</p>
         <ul>${list}</ul>
-        <button onclick="exportDeck()">Exportar falladas</button>
-        <button onclick="showStartScreen()">Volver al inicio</button>
+        <button id="export-btn">${t('exportButton')}</button>
+        <button id="back-btn">${t('backButton')}</button>
       `;
+      document.getElementById('export-btn').onclick = exportDeck;
+      document.getElementById('back-btn').onclick = showStartScreen;
     }
 
     function exportDeck() {
-      const blob = new Blob([JSON.stringify(failedCards)], {type: "application/json"});
+      const blob = new Blob([JSON.stringify(failedCards, null, 2)], {type: "application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -222,16 +366,40 @@
       const fileInput = document.getElementById("importFile");
       fileInput.click();
       fileInput.onchange = async () => {
-        const file = fileInput.files[0];
-        const text = await file.text();
-        failedCards = JSON.parse(text);
-        deck = [...failedCards];
-        currentIndex = 0;
-        showCard();
+        try {
+          const file = fileInput.files[0];
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          if (!Array.isArray(parsed)) throw new Error("Invalid format");
+          failedCards = parsed;
+          deck = [...failedCards];
+          currentIndex = 0;
+          showCard();
+        } catch (e) {
+          alert("Import failed: " + (e.message || e));
+        } finally {
+          fileInput.value = "";
+        }
       };
     }
 
-    // inicio
+    // utility: shuffle in-place
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    // simple escape to avoid injecting HTML from API attributions
+    function escapeHtml(s) {
+      if (!s) return "";
+      return s.replace(/[&<>"']/g, function (m) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
+      });
+    }
+
+    // start
     showStartScreen();
   </script>
 </body>
