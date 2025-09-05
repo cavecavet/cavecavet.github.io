@@ -334,8 +334,9 @@ function showStartScreen() {
     function showAnswer() {
       const card = deck[currentIndex];
       document.getElementById("answer").innerHTML = `
-        🌱 <strong>${language.toUpperCase()}:</strong> ${escapeHtml(card.common || "N/A")}<br>
-        🌿 <strong>Scientific:</strong> ${escapeHtml(card.scientific)}
+        🌿 <strong>Scientific:</strong> ${escapeHtml(card.scientific)<br>
+        🌱 <strong>${language.toUpperCase()}:</strong> ${escapeHtml(card.common || "N/A")}
+        }
       `;
       if (!answered) {
         const screen = document.getElementById("screen");
