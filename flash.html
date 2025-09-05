@@ -1,4 +1,3 @@
-<!-- ...existing code... -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,14 +19,14 @@
     .image-container {
       width: 100%;
       max-width: 900px;
-      height: 60vh; /* fixed height so cards don't jump */
+      height: 60vh;
       display: flex;
       align-items: center;
       justify-content: center;
       background: #fafafa;
       border-radius: 8px;
       overflow: hidden;
-      margin: 0 auto 8px auto;
+      margin: 0 auto 4px auto; /* 👈 menos espacio debajo */
     }
 
     img.card-image {
@@ -42,7 +41,6 @@
       opacity: 1;
     }
 
-    /* small tweaks for orientation if needed (does not change container size) */
     img.card-image.portrait {
       padding: 8px 20px;
     }
@@ -55,7 +53,7 @@
     }
 
     .attribution {
-      font-size: 0.9em;
+      font-size: 0.85em;
       color: #555;
       margin-bottom: 12px;
     }
@@ -102,8 +100,9 @@
     let language = "es";
     let cardLimit = 25;
     let answered = false;
+    let firstVisit = true; // 👈 controla si mostramos intro
 
-    // Translations
+    // Traducciones
     const MSG = {
       en: {
         title: "Minka SDG Flashcards",
@@ -120,7 +119,8 @@
         summaryText: "You failed {n} species:",
         exportButton: "Export failed",
         backButton: "Back to start",
-        noImage: "No image"
+        noImage: "No image",
+        unknown: "Name?"
       },
       es: {
         title: "Flashcards Minka SDG",
@@ -137,7 +137,8 @@
         summaryText: "Fallaste {n} especies:",
         exportButton: "Exportar falladas",
         backButton: "Volver al inicio",
-        noImage: "Sin imagen"
+        noImage: "Sin imagen",
+        unknown: "¿Nombre?"
       },
       ca: {
         title: "Flashcards Minka SDG",
@@ -153,8 +154,9 @@
         summaryTitle: "Resum",
         summaryText: "Has fallat {n} espècies:",
         exportButton: "Exporta fallades",
-        backButton: "Tornem a l'inici",
-        noImage: "Sense imatge"
+        backButton: "Tornar a l'inici",
+        noImage: "Sense imatge",
+        unknown: "Nom?"
       }
     };
 
@@ -162,76 +164,73 @@
       const s = (MSG[language] && MSG[language][key]) || MSG['en'][key] || key;
       return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
     }
-let firstVisit = true; // 👈 nueva variable global
 
-function showStartScreen() {
-  document.getElementById("page-title").textContent = t('title');
+    function showStartScreen() {
+      document.getElementById("page-title").textContent = t('title');
 
-  let introText = "";
-  if (firstVisit) {
-    introText = `
-      <p style="text-align:justify; max-width:700px; margin:0 auto 1em auto;">
-        La aplicación de tarjetas de memoria (flashcards) utiliza la técnica de la repetición espaciada y autoevaluación para mejorar la retención de información a largo plazo. 
-        Al estudiar, el usuario responde mentalmente a la pregunta de la tarjeta y luego revela la respuesta; debe autoevaluarse seleccionando si acertó o no la respuesta, 
-        lo que determina si volverá a repasar esa tarjeta.
-      </p>
-      <p style="text-align:justify; max-width:700px; margin:0 auto 1em auto;">
-        L'aplicació de targetes de memòria (flashcards) utilitza la tècnica de la repetició espaiada i l'autoevaluació per millorar la retenció d'informació a llarg termini. 
-        Quan estudia, l'usuari respon mentalment a la pregunta de la targeta i després revela la resposta; ha d'autoavaluar-se seleccionant si ha encertat o no la resposta, 
-        cosa que determina si tornarà a repassar aquesta targeta.
-      </p>
-      <p style="text-align:justify; max-width:700px; margin:0 auto 2em auto;">
-        The flashcard application uses the technique of spaced repetition and self-evaluation to improve long-term information retention. 
-        While studying, the user mentally answers the flashcard's question and then reveals the answer; they must self-assess by selecting whether they got the answer right or not, 
-        which determines if they will review that flashcard again.
-      </p>
-    `;
-    firstVisit = false; // 👈 aseguramos que no se vuelva a mostrar
-  }
+      let introText = "";
+      if (firstVisit) {
+        introText = `
+          <p style="text-align:justify; max-width:700px; margin:0 auto 1em auto;">
+            La aplicación de tarjetas de memoria (flashcards) utiliza la técnica de la repetición espaciada y autoevaluación para mejorar la retención de información a largo plazo. 
+            Al estudiar, el usuario responde mentalmente a la pregunta de la tarjeta y luego revela la respuesta; debe autoevaluarse seleccionando si acertó o no la respuesta le resultó, 
+            lo que determina si volverá a repasar esa tarjeta.
+          </p>
+          <p style="text-align:justify; max-width:700px; margin:0 auto 1em auto;">
+            L'aplicació de targetes de memòria (flashcards) utilitza la tècnica de la repetició espaiada i l'autoevaluació per millorar la retenció d'informació a llarg termini. 
+            Quan estudia, l'usuari respon mentalment a la pregunta de la targeta i després revela la resposta; ha d'autoavaluar-se seleccionant si ha encertat o no la resposta, 
+            cosa que determina si tornarà a repassar aquesta targeta.
+          </p>
+          <p style="text-align:justify; max-width:700px; margin:0 auto 2em auto;">
+            The flashcard application uses the technique of spaced repetition and self-evaluation to improve long-term information retention. 
+            While studying, the user mentally answers the flashcard's question and then reveals the answer; they must self-assess by selecting whether they got the answer right or not, 
+            which determines if they will review that flashcard again.
+          </p>
+        `;
+        firstVisit = false;
+      }
 
-  document.getElementById("screen").innerHTML = `
-    <div>
-      ${introText}
-      <label>${t('languageLabel')}
-        <select id="lang">
-          <option value="es">Español</option>
-          <option value="ca">Català</option>
-          <option value="en">English</option>
-        </select>
-      </label>
-      <br><br>
-      <label>${t('quantityLabel')}
-        <select id="limit">
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </label>
-      <br><br>
-      <button id="start-btn">${t('startButton')}</button>
-      <div class="export-import">
-        <button id="import-btn">${t('importButton')}</button>
-        <input type="file" id="importFile" style="display:none" aria-label="${t('importFileAria')}" />
-      </div>
-    </div>
-  `;
+      document.getElementById("screen").innerHTML = `
+        <div>
+          ${introText}
+          <label>${t('languageLabel')}
+            <select id="lang">
+              <option value="es">Español</option>
+              <option value="ca">Català</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <br><br>
+          <label>${t('quantityLabel')}
+            <select id="limit">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <br><br>
+          <button id="start-btn">${t('startButton')}</button>
+          <div class="export-import">
+            <button id="import-btn">${t('importButton')}</button>
+            <input type="file" id="importFile" style="display:none" aria-label="${t('importFileAria')}" />
+          </div>
+        </div>
+      `;
+      document.getElementById("lang").value = language;
+      document.getElementById("limit").value = cardLimit;
 
-  document.getElementById("lang").value = language;
-  document.getElementById("limit").value = cardLimit;
+      document.getElementById("start-btn").onclick = startDeck;
+      document.getElementById("import-btn").onclick = importDeck;
+    }
 
-  document.getElementById("start-btn").onclick = startDeck;
-  document.getElementById("import-btn").onclick = importDeck;
-}
     async function startDeck() {
       language = document.getElementById("lang").value;
       cardLimit = parseInt(document.getElementById("limit").value, 10);
 
-      // show loading with chosen number
       document.getElementById("page-title").textContent = t('title');
       document.getElementById("screen").innerHTML = `<p>${t('loading', {n: cardLimit})}</p>`;
 
-      // Collect all observations for the project (paginated)
-      const projectId = 184; // keep project id here; change if needed
+      const projectId = 184;
       let allObservations = [];
       let page = 1;
       try {
@@ -240,10 +239,8 @@ function showStartScreen() {
           const json = await res.json();
           if (!Array.isArray(json.results) || json.results.length === 0) break;
           allObservations = allObservations.concat(json.results);
-          // if total results less than requested per_page, we can break early when pages exhausted
-          if (!json.next) break; // if API provides pagination link
+          if (!json.next) break;
           page++;
-          // safety: prevent infinite loop
           if (page > 200) break;
         }
       } catch (e) {
@@ -255,11 +252,9 @@ function showStartScreen() {
         return;
       }
 
-      // shuffle and pick requested number
       shuffleArray(allObservations);
       const chosen = allObservations.slice(0, Math.min(cardLimit, allObservations.length));
 
-      // load full card objects
       deck = await Promise.all(chosen.map(loadCard));
       currentIndex = 0;
       failedCards = [];
@@ -267,7 +262,6 @@ function showStartScreen() {
     }
 
     async function loadCard(obs) {
-      // Ensure we have photos array
       const photos = (obs.photos || []).map(p => (p.url || "").replace("/square.", "/original."));
       const attributions = (obs.photos || []).map(p => p.attribution || "");
       const taxon = obs.taxon || {};
@@ -305,7 +299,7 @@ function showStartScreen() {
             ${imgSrc ? `<img id="card-img" src="${imgSrc}" class="card-image" alt="card image"/>` : `<div style="color:#777">${t('noImage')}</div>`}
           </div>
           <div class="attribution">${escapeHtml(attribution)}</div>
-          <div id="answer" style="margin: 15px; font-size: 1.2em;">???</div>
+          <div id="answer" style="margin: 15px; font-size: 1.2em;">${t('unknown')}</div>
           <button id="show-answer-btn">${t('showAnswer')}</button>
         </div>
       `;
@@ -313,7 +307,6 @@ function showStartScreen() {
       const img = document.getElementById('card-img');
       if (img) {
         img.onload = () => {
-          // determine orientation and add class
           try {
             const isPortrait = img.naturalHeight > img.naturalWidth;
             img.classList.add(isPortrait ? 'portrait' : 'landscape', 'loaded');
@@ -334,9 +327,8 @@ function showStartScreen() {
     function showAnswer() {
       const card = deck[currentIndex];
       document.getElementById("answer").innerHTML = `
-        🌿 <strong>Scientific:</strong> ${escapeHtml(card.scientific)<br>
+        🌿 <strong>Scientific:</strong> ${escapeHtml(card.scientific)}<br>
         🌱 <strong>${language.toUpperCase()}:</strong> ${escapeHtml(card.common || "N/A")}
-        }
       `;
       if (!answered) {
         const screen = document.getElementById("screen");
@@ -357,7 +349,6 @@ function showStartScreen() {
     }
 
     function markFailed() {
-      // push failed card to failed list and move it to end of deck
       failedCards.push(deck[currentIndex]);
       deck.push(deck[currentIndex]);
       deck.splice(currentIndex, 1);
@@ -409,7 +400,6 @@ function showStartScreen() {
       };
     }
 
-    // utility: shuffle in-place
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -417,7 +407,6 @@ function showStartScreen() {
       }
     }
 
-    // simple escape to avoid injecting HTML from API attributions
     function escapeHtml(s) {
       if (!s) return "";
       return s.replace(/[&<>"']/g, function (m) {
@@ -425,7 +414,7 @@ function showStartScreen() {
       });
     }
 
-    // start
+    // inicio
     showStartScreen();
   </script>
 </body>
