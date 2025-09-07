@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Minka: noms d'observacions per projecte</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    #start-screen { max-width: 700px; margin: 0 auto; padding: 20px; }
+    #start-screen p { text-align: justify; margin-bottom: 15px; }
+    #app { display: none; }
+    img { max-width: 400px; max-height: 60vh; margin: 10px auto; display: block; opacity: 0; transition: opacity .3s ease; }
+    img.loaded { opacity: 1; }
+    #attribution { font-size: 0.9em; color: #555; margin-top: 6px; text-align: center; }
+    #sci-section, #common-name-section {
+      font-size: 0.95em; color: #333; margin: 6px auto; max-width: 600px; text-align: left;
+    }
+    #added-names { font-size: 0.95em; margin: 6px auto; max-width: 600px; text-align: left; }
+    .controls button, #new-name-form button, #export-btn {
+      margin: 6px; padding: 8px 16px; font-size: 15px;
+      border: none; border-radius: 6px; cursor: pointer; background: #007bff; color: white;
+    }
+    .controls button:hover, #new-name-form button:hover, #export-btn:hover { background: #0056b3; }
+    #counter { margin: 10px 0; font-weight: bold; }
+    #added-names ul { list-style: none; padding: 0; }
+    #added-names li { margin: 4px 0; }
+    #loading { display: none; font-size: 1.2em; margin-top: 20px; }
+    #start-btn { border: none; background: none; margin-top: 20px; }
+    #start-btn svg {
+      width: 60px; opacity: 0.5; cursor: not-allowed; transition: opacity .3s ease;
+    }
+    #start-btn.enabled svg { opacity: 1; cursor: pointer; }
+    ul.common-list { margin: 4px 0 0 0; padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <!-- Pantalla inicial -->
+  <div id="start-screen">
+    <h1 id="start-title">Project Minka noms</h1>
+    <label for="project-id" id="project-label">Número de projecte:</label>
+    <input type="number" id="project-id" value="184" min="1">
+    <label for="start-language-select" id="start-lang-label">Idioma:</label>
+    <select id="start-language-select">
+      <option value="ca" selected>Català</option>
+      <option value="es">Español</option>
+      <option value="en">English</option>
+    </select>
+    <div id="intro-text">
+      <h2 id="intro-title">Benvingut a les observacions del projecte</h2>
+      <p id="intro-paragraph">En aquesta aplicació podràs recórrer de manera seqüencial totes les observacions d’un projecte Minka, consultar les fotos, el nom científic i tots els noms comuns en diferents idiomes. A més, podràs afegir els teus propis noms comuns associats a una llengua i un lloc. Al finalitzar, podràs exportar tots els noms afegits en un fitxer CSV.</p>
+    </div>
+    <div id="loading"></div>
+    <button id="start-btn" disabled>
+      <!-- Botón Start SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#007bff">
+        <path d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9v416.2c0 41.8 43.8 58.2 72.4 41.3l352-208.1c31.3-18.5 31.3-64.1 0-82.6z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Aplicación principal -->
+  <div id="app">
+    <h1 id="page-title">Observacions del projecte</h1>
+    <div id="counter"></div>
+    <div id="photo-section">
+      <img id="obs-photo" src="" alt="Foto de l'observació">
+    </div>
+    <div id="attribution"></div>
+    <div id="sci-section"></div>
+    <div id="common-name-section"></div>
+
+    <label for="language-select" id="lang-label">Idioma:</label>
+    <select id="language-select">
+      <option value="ca" selected>Català</option>
+      <option value="es">Español</option>
+      <option value="en">English</option>
+    </select>
+
+    <div class="controls">
+      <button id="prev-btn">Anterior</button>
+      <button id="next-btn">Següent</button>
+    </div>
+
+    <h2 id="add-title">Afegir nou nom comú</h2>
+    <form id="new-name-form">
+      <input type="text" id="new-common-name" placeholder="Nou nom comú" required>
+      <input type="text" id="new-location" placeholder="Lloc/zona" required>
+      <button type="submit" id="add-btn">Afegir</button>
+    </form>
+    <button id="export-btn">Exporta CSV</button>
+    <div id="added-names"></div>
+  </div>
+
+  <script>
+    const API_PATH = "https://api.minka-sdg.org/v1";
+    let observations = [];
+    let currentIndex = 0;
+    let addedNames = [];
+    let language = "ca";
+    let projectId = 184;
+    let projectTitle = "";
+
+    const MSG = {
+      ca: {
+        attribution: "📸 Atribució",
+        sci: "🔬 Nom científic",
+        common: "🌱 Noms comuns",
+        loading: "Carregant dades...",
+        ui: {
+          startTitle: "Projecte noms de Minka",
+          projectLabel: "Número de projecte:",
+          introTitle: "Benvingut a les observacions del projecte",
+          intro: "En aquesta aplicació podràs recórrer de manera seqüencial totes les observacions d’un projecte Minka, consultar les fotos, el nom científic i tots els noms comuns en diferents idiomes. A més, podràs afegir els teus propis noms comuns associats a una llengua i un lloc. Al finalitzar, podràs exportar tots els noms afegits en un fitxer CSV.",
+          startBtn: "Inicia",
+          prev: "Anterior",
+          next: "Següent",
+          addTitle: "Afegir nou nom comú",
+          addBtn: "Afegir",
+          exportBtn: "Exporta CSV",
+          langLabel: "Idioma:",
+          placeholderName: "Nou nom comú",
+          placeholderLoc: "Lloc/zona"
+        }
+      },
+      es: {
+        attribution: "📸 Atribución",
+        sci: "🔬 Nombre científico",
+        common: "🌱 Nombres comunes",
+        loading: "Cargando datos...",
+        ui: {
+          startTitle: "Proyecto nombres de Minka",
+          projectLabel: "Número de proyecto:",
+          introTitle: "Bienvenido a las observaciones del proyecto",
+          intro: "En esta aplicación podrás recorrer de manera secuencial todas las observaciones de un proyecto Minka, consultar las fotos, el nombre científico y todos los nombres comunes en distintos idiomas. Además, podrás añadir tus propios nombres comunes asociados a una lengua y un lugar. Al finalizar, podrás exportar todos los nombres añadidos en un archivo CSV.",
+          startBtn: "Iniciar",
+          prev: "Anterior",
+          next: "Siguiente",
+          addTitle: "Agregar nombre común",
+          addBtn: "Añadir",
+          exportBtn: "Exportar CSV",
+          langLabel: "Idioma:",
+          placeholderName: "Nuevo nombre común",
+          placeholderLoc: "Lugar/zona"
+        }
+      },
+      en: {
+        attribution: "📸 Attribution",
+        sci: "🔬 Scientific name",
+        common: "🌱 Common names",
+        loading: "Loading data...",
+        ui: {
+          startTitle: "Minka Names Project",
+          projectLabel: "Project number:",
+          introTitle: "Welcome to the project observations",
+          intro: "In this application you will be able to go through all the observations of a Minka project sequentially, consult the photos, the scientific name and all the common names in different languages. You will also be able to add your own common names associated with a language and a place. At the end, you can export all the added names to a CSV file.",
+          startBtn: "Start",
+          prev: "Previous",
+          next: "Next",
+          addTitle: "Add new common name",
+          addBtn: "Add",
+          exportBtn: "Export CSV",
+          langLabel: "Language:",
+          placeholderName: "New common name",
+          placeholderLoc: "Place/area"
+        }
+      }
+    };
+
+    function t(key) { return MSG[language][key]; }
+    function getOriginalUrl(url) { return url.replace(/\/(square|small|medium|large)\./, "/original."); }
+
+    // Actualiza todos los textos de la interfaz según el idioma seleccionado
+    function renderUI() {
+      const ui = MSG[language].ui;
+      document.getElementById('start-title').textContent = ui.startTitle;
+      document.getElementById('project-label').textContent = ui.projectLabel;
+      document.getElementById('intro-title').textContent = ui.introTitle;
+      document.getElementById('intro-paragraph').textContent = ui.intro;
+      document.getElementById('start-btn').title = ui.startBtn;
+
+      // sincronizar selects y etiqueta del selector de la pantalla inicial
+      const startLangSel = document.getElementById('start-language-select');
+      const appLangSel = document.getElementById('language-select');
+      if (startLangSel) startLangSel.value = language;
+      if (appLangSel) appLangSel.value = language;
+      const startLangLabel = document.getElementById('start-lang-label');
+      if (startLangLabel) startLangLabel.textContent = ui.langLabel;
+
+      document.getElementById('lang-label').textContent = ui.langLabel;
+      document.getElementById('prev-btn').textContent = ui.prev;
+      document.getElementById('next-btn').textContent = ui.next;
+      document.getElementById('add-title').textContent = ui.addTitle;
+      document.getElementById('add-btn').textContent = ui.addBtn;
+      document.getElementById('export-btn').textContent = ui.exportBtn;
+      document.getElementById('new-common-name').placeholder = ui.placeholderName;
+      document.getElementById('new-location').placeholder = ui.placeholderLoc;
+    }
+
+    // Llamar al menos una vez al cargar para establecer textos iniciales
+    document.addEventListener('DOMContentLoaded', renderUI);
+
+    async function fetchProjectInfo() {
+      projectId = parseInt(document.getElementById("project-id").value) || 184;
+      document.getElementById('loading').textContent = t('loading');
+      document.getElementById('loading').style.display = "block";
+
+      const res = await fetch(`${API_PATH}/projects/${projectId}`);
+      const data = await res.json();
+      projectTitle = data.results?.[0]?.title || `#${projectId}`;
+
+      let page = 1; let all = [];
+      while (true) {
+        const resObs = await fetch(`${API_PATH}/observations?project_id=${projectId}&per_page=200&page=${page}`);
+        const dataObs = await resObs.json();
+        if (!dataObs.results || dataObs.results.length === 0) break;
+        all = all.concat(dataObs.results);
+        if (dataObs.results.length < 200) break;
+        page++;
+      }
+      observations = all;
+
+      document.getElementById('loading').style.display = "none";
+      const btn = document.getElementById("start-btn");
+      btn.disabled = false;
+      btn.classList.add("enabled");
+    }
+
+    fetchProjectInfo();
+
+    document.getElementById('start-btn').onclick = function() {
+      if (this.disabled) return;
+      document.getElementById('start-screen').style.display = "none";
+      document.getElementById('app').style.display = "block";
+      showObservation();
+    };
+
+    async function showObservation() {
+      if (observations.length === 0) return;
+      const observation = observations[currentIndex];
+      document.getElementById('page-title').textContent = `${projectTitle}`;
+      document.getElementById('counter').textContent = `${currentIndex+1}/${observations.length}`;
+
+      const img = document.getElementById('obs-photo');
+      if (observation.photos && observation.photos.length > 0) {
+        const photoUrl = getOriginalUrl(observation.photos[0].url);
+        img.classList.remove('loaded');
+        img.src = photoUrl;
+        img.onload = () => img.classList.add('loaded');
+        img.style.display = "block";
+        document.getElementById('attribution').textContent = `${t('attribution')}: ${observation.photos[0].attribution}`;
+      } else {
+        img.style.display = "none";
+        document.getElementById('attribution').textContent = "";
+      }
+
+      document.getElementById('sci-section').textContent = `${t('sci')}: ${observation.taxon?.name || "-"}`;
+
+      // Ahora buscamos TODOS los nombres comunes en el idioma actual
+      let commonList = [];
+      try {
+        const resp = await fetch(`${API_PATH}/taxa?taxon_id=${observation.taxon.id}&locale=${language}`);
+        const json = await resp.json();
+        const tax = json.results?.[0];
+        if (tax) {
+          if (tax.preferred_common_name) {
+            commonList.push(`<b>${tax.preferred_common_name}</b>`);
+          }
+          if (tax.common_names && tax.common_names.length > 0) {
+            for (const cn of tax.common_names) {
+              if (!commonList.includes(cn.name)) {
+                commonList.push(cn.name);
+              }
+            }
+          }
+        }
+      } catch(e) {
+        commonList = ["-"];
+      }
+
+      let html = `${t('common')}:`;
+      if (commonList.length > 0) {
+        html += `<ul class="common-list">${commonList.map(n => `<li>${n}</li>`).join("")}</ul>`;
+      }
+      document.getElementById('common-name-section').innerHTML = html;
+    }
+
+    document.getElementById('prev-btn').onclick = () => {
+      if (currentIndex > 0) { currentIndex--; showObservation(); }
+    };
+    document.getElementById('next-btn').onclick = () => {
+      if (currentIndex < observations.length-1) { currentIndex++; showObservation(); }
+    };
+
+    document.getElementById('language-select').onchange = function() {
+      language = this.value;
+      // sincroniza el selector de la pantalla inicial si existe
+      const startSel = document.getElementById('start-language-select');
+      if (startSel) startSel.value = language;
+      renderUI();
+      showObservation();
+    };
+
+    // selector de idioma en la pantalla inicial
+    const startLang = document.getElementById('start-language-select');
+    if (startLang) {
+      startLang.onchange = function() {
+        language = this.value;
+        const appSel = document.getElementById('language-select');
+        if (appSel) appSel.value = language;
+        renderUI();
+      };
+    }
+
+    document.getElementById('new-name-form').onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-common-name').value;
+      const location = document.getElementById('new-location').value;
+      const sci = observations[currentIndex]?.taxon?.name || "-";
+      const id = observations[currentIndex]?.id || "-";
+      addedNames.unshift({id, sci, lang: language, name, location});
+      renderAddedNames();
+      this.reset();
+    }
+
+    function renderAddedNames() {
+      let html = "<ul>";
+      for (const n of addedNames) {
+        html += `<li>[${n.id}] ${n.sci} – ${n.lang}: <b>${n.name}</b> (${n.location})</li>`;
+      }
+      html += "</ul>";
+      document.getElementById('added-names').innerHTML = html;
+    }
+
+    document.getElementById('export-btn').onclick = function() {
+      let csv = "ID;Nom científic;Llengua;Nom;Lloc\n";
+      for (const n of addedNames) {
+        csv += `${n.id};${n.sci};${n.lang};${n.name};${n.location}\n`;
+      }
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "noms.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+  </script>
+</body>
+</html>
